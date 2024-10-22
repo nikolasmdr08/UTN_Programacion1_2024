@@ -67,3 +67,14 @@ C:\UTN_Programacion1_2024\obj\Debug\MyGame.csproj.CoreCompileInputs.cache
 C:\UTN_Programacion1_2024\obj\Debug\MyGame.csproj.Up2Date
 C:\UTN_Programacion1_2024\obj\Debug\MyGame.exe
 C:\UTN_Programacion1_2024\obj\Debug\MyGame.pdb
+C:\Git\UTN_Programacion1_2024\bin\Debug\assets\fondo.png
+C:\Git\UTN_Programacion1_2024\bin\Debug\assets\player.png
+C:\Git\UTN_Programacion1_2024\bin\Debug\assets\Arial.ttf
+C:\Git\UTN_Programacion1_2024\bin\Debug\MyGame.exe.config
+C:\Git\UTN_Programacion1_2024\bin\Debug\MyGame.exe
+C:\Git\UTN_Programacion1_2024\bin\Debug\MyGame.pdb
+C:\Git\UTN_Programacion1_2024\obj\Debug\MyGame.csproj.AssemblyReference.cache
+C:\Git\UTN_Programacion1_2024\obj\Debug\MyGame.csproj.CoreCompileInputs.cache
+C:\Git\UTN_Programacion1_2024\obj\Debug\MyGame.csproj.Up2Date
+C:\Git\UTN_Programacion1_2024\obj\Debug\MyGame.exe
+C:\Git\UTN_Programacion1_2024\obj\Debug\MyGame.pdb

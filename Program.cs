@@ -17,7 +17,8 @@ namespace MyGame
             Pausa
         }
         // Estado inicial del juego
-        static GameState currentState = GameState.Titulo;
+        //static GameState currentState = GameState.Titulo;
+        static GameState currentState = GameState.Creditos;
         //Fuentes
         static Font font;
         // Carga de imagenes
@@ -26,7 +27,7 @@ namespace MyGame
         //personaje
         static Vector2 playerPosition = new Vector2();
 
-        static int optionTitle = 0;
+        static int optionTitle = 1;
 
         static void Main(string[] args)
         {
@@ -35,8 +36,6 @@ namespace MyGame
 
             while (true)
             {
-                CheckInputs();
-
                 Update();
                 Render();
                 Sdl.SDL_Delay(60);  
@@ -89,7 +88,7 @@ namespace MyGame
                 {
                     case GameState.Titulo:
                         optionTitle--;
-                        if (optionTitle < 0)
+                        if (optionTitle < 1)
                         {
                             optionTitle = 3;
                         }
@@ -115,7 +114,7 @@ namespace MyGame
                         optionTitle++;
                         if (optionTitle > 3)
                         {
-                            optionTitle = 0;
+                            optionTitle = 1;
                         }
                         break;
                     case GameState.Juego:
@@ -131,21 +130,38 @@ namespace MyGame
                 }
             }
 
-            if (Engine.KeyPress(Engine.KEY_ESC))
+            if (Engine.KeyPress(Engine.KEY_Z))
             {
-                Environment.Exit(0);
+                switch (currentState)
+                {
+                    case GameState.Titulo:
+                        switch (optionTitle)
+                        {
+                            case 1:
+                                currentState = GameState.Juego;
+                                break;
+                            case 2:
+                                currentState = GameState.Creditos;
+                                break;
+                            case 3:
+                                Environment.Exit(0);
+                                break;
+                        }
+                        break;
+                    case GameState.Creditos:
+                        break;
+                    case GameState.Juego:
+                        break;
+                    default:
+                        break;
+                }
             }
+
         }
 
         static void Update()
         {
-            switch (currentState)
-            {
-                case GameState.Juego:
-                    break;
-                default:
-                    break;
-            }
+            CheckInputs();
         }
 
         static void Render()
@@ -187,9 +203,6 @@ namespace MyGame
                     Engine.DrawText("Salir", 850, 700, 255, 255, 255, font);
                     switch (optionTitle)
                     {
-                        case 0:
-                            playerPosition = new Vector2(810, 550);
-                            break;
                         case 1:
                             playerPosition = new Vector2(810, 600);
                             break;
