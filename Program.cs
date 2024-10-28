@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Media;
 using System.Security.AccessControl;
 using Tao.Sdl;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MyGame
 {
@@ -11,38 +13,48 @@ namespace MyGame
         // Estados del juego
         enum GameState { Titulo, Juego, FinJuego, Creditos, Pausa }
         enum Orientation { Vertical, Horizontal }
-        static GameState currentState = GameState.Titulo;
+        static GameState _currentState = GameState.Titulo;
 
         //Control de teclas
-        static Dictionary<int, (bool previous, bool current)> keyStates = new Dictionary<int, (bool, bool)>();
+        static Dictionary<int, (bool previous, bool current)> _keyStates = new Dictionary<int, (bool, bool)>();
 
         // Fuentes y Recursos
-        static Font font, fontTitle;
-        static Image backgroundImage, playerImageIcon, playerImage, layer1, layer2_1, layer2_2, layer3_1, layer3_2, bulletImage;
-        static Vector2 playerPosition = new Vector2();
+        static Font _font, _fontTitle;
+        static Image _backgroundImage, _playerImageIcon, _playerImage, _layer1, _layer2_1, _layer2_2, _layer3_1, _layer3_2, _bulletImage, _enemyImage;
+        static Vector2 _playerPosition = new Vector2();
 
         //variables
-        static int optionTitle = 1, optionFinJuego = 1, speedMovement = 10, screenWidth = 1024, screenHeight = 768, imageWidth = 64, imageHeight = 64, paralax = 0;
-        static float paralax2 = 0;
+        static int _optionTitle = 1, _optionFinJuego = 1, _speedMovement = 10, _screenWidth = 1024, _screenHeight = 768, _imageWidth = 64, _imageHeight = 64, _paralax = 0;
+        static float _paralax2 = 0;
         //disparo
-        static int shootCooldown = 500; 
-        static int lastShootTime = 0; 
-        static List<bullet> bullets = new List<bullet>();
+        static int _shootCooldown = 500; 
+        static int _lastShootTime = 0; 
+        static List<bullet> _bullets = new List<bullet>();
+        static List<bullet> _enemyBullets = new List<bullet>();
+
+        static Level _nivelActual;
+        static int _nivel;
+        static int _score;
+
 
         static void Main(string[] args)
         {
             Engine.Initialize();
-            font = Engine.LoadFont("assets/Arial.ttf", 24);
-            fontTitle = Engine.LoadFont("assets/Arial.ttf", 48);
-            backgroundImage = Engine.LoadImage("assets/fondo.png");
-            layer1 = Engine.LoadImage("assets/layer_1.png");
-            layer2_1 = Engine.LoadImage("assets/layer_2.png");
-            layer2_2 = Engine.LoadImage("assets/layer_2.png");
-            layer3_1 = Engine.LoadImage("assets/layer_3.png");
-            layer3_2 = Engine.LoadImage("assets/layer_3.png");
-            bulletImage = Engine.LoadImage("assets/bullet.png");
-            playerImageIcon = Engine.LoadImage("assets/playerIcon.png");
-            playerImage = Engine.LoadImage("assets/playerImage.png");
+            _font = Engine.LoadFont("assets/Arial.ttf", 24);
+            _fontTitle = Engine.LoadFont("assets/Arial.ttf", 48);
+            _backgroundImage = Engine.LoadImage("assets/fondo.png");
+            _layer1 = Engine.LoadImage("assets/layer_1.png");
+            _layer2_1 = Engine.LoadImage("assets/layer_2.png");
+            _layer2_2 = Engine.LoadImage("assets/layer_2.png");
+            _layer3_1 = Engine.LoadImage("assets/layer_3.png");
+            _layer3_2 = Engine.LoadImage("assets/layer_3.png");
+            _bulletImage = Engine.LoadImage("assets/bullet.png");
+            _playerImageIcon = Engine.LoadImage("assets/playerIcon.png");
+            _playerImage = Engine.LoadImage("assets/playerImage.png");
+            _enemyImage = Engine.LoadImage("assets/playerImage.png");
+            _nivel = 1;
+            _score = 0;
+            _nivelActual = CargarNivel(_nivel);
             GameLoop();
         }
 
@@ -60,16 +72,16 @@ namespace MyGame
         {
             UpdateKeyStates();
 
-            if (currentState == GameState.Juego)
+            if (_currentState == GameState.Juego)
             {
                 //mantener apretado disparo
                 if (Engine.KeyPress(Engine.KEY_Z) || Engine.KeyPress(Engine.KEY_1))
                     HandleContinuousShoot(); 
                 //disparopor pulsacion
                 if (KeyReleased(Engine.KEY_Z) || KeyReleased(Engine.KEY_1))
-                    playerShoot(); 
+                    PlayerShoot(); 
 
-                playerMovement();
+                PlayerMovement();
             }
 
             HandleMovementInput();
@@ -83,25 +95,86 @@ namespace MyGame
 
             foreach (var key in keys)
             {
-                if (!keyStates.ContainsKey(key))
-                    keyStates[key] = (false, false);
+                if (!_keyStates.ContainsKey(key))
+                    _keyStates[key] = (false, false);
 
                 bool currentState = Engine.KeyPress(key);
-                var previousState = keyStates[key].current;
-                keyStates[key] = (previousState, currentState);
+                var previousState = _keyStates[key].current;
+                _keyStates[key] = (previousState, currentState);
             }
         }
 
         static bool KeyReleased(int key)
         {
-            if (keyStates.ContainsKey(key))
+            if (_keyStates.ContainsKey(key))
             {
-                var (previous, current) = keyStates[key];
+                var (previous, current) = _keyStates[key];
                 return previous && !current;  
             }
             return false;
         }
 
+        static Level CargarNivel(int level)
+        {
+            int offset = 100;
+            int posicionInicialX = 1050;
+            int enemySpeed = 5;
+
+            Level nivel = new Level();
+            switch (level)
+            {
+                case 1:
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 1, "mina", posicionInicialX, 200, offset, 30,"explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 500, offset, enemySpeed, ""));
+                    /*nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "lineal", posicionInicialX, 300, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "lineal", posicionInicialX, 100, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 400, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "lineal", posicionInicialX, 600, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 350, offset, enemySpeed, ""));*/
+                    break;
+                case 2:
+                    /*nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 200, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 500, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 300, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 100, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 400, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 600, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 350, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 200, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 500, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 300, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 100, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 400, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 600, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 350, offset, enemySpeed, ""));*/
+                    break;
+                default:
+                    _currentState = GameState.FinJuego;
+                    break;
+            }
+            
+
+            return nivel;
+        }
+
+        static Wave GenerarOleada(Image image, string tipo, int cantidadEnemigos, string patronMovimiento, int posicionInicialX, int posicionInicialY, int offset, int speed, string tipoAtaque)
+        {
+            Wave oleada = new Wave();
+ 
+            for (int i = 0; i < cantidadEnemigos; i++)
+            {
+                Vector2 posicion = new Vector2(posicionInicialX + offset * i, posicionInicialY);
+                oleada._enemies.Add(new Enemy(image, tipo, posicion, speed, patronMovimiento, tipoAtaque));
+            }
+
+            return oleada;
+        }
+
+        public static int GetRandomInt(int min, int max)
+        {
+            Random random = new Random();
+            return random.Next(min, max + 1); 
+        }
 
         static void HandleActionInput()
         {
@@ -111,32 +184,32 @@ namespace MyGame
                 SwitchState(GameState.Creditos, GameState.Titulo);
             if (KeyReleased(Engine.KEY_P) || KeyReleased(Engine.KEY_3))
                 TogglePause();
-            if (KeyReleased(Engine.KEY_ESC) && currentState == GameState.Titulo)
+            if (KeyReleased(Engine.KEY_ESC) && _currentState == GameState.Titulo)
                 Environment.Exit(0);
         }
 
         static void HandleMovementInput()
         {
             if (KeyReleased(Engine.KEY_LEFT) || KeyReleased(Engine.KEY_A))
-                UpdateOption(ref optionFinJuego, -1, 1, 2);
+                UpdateOption(ref _optionFinJuego, -1, 1, 2);
 
             if (KeyReleased(Engine.KEY_RIGHT) || KeyReleased(Engine.KEY_D))
-                UpdateOption(ref optionFinJuego, 1, 1, 2);
+                UpdateOption(ref _optionFinJuego, 1, 1, 2);
 
             if (KeyReleased(Engine.KEY_UP) || KeyReleased(Engine.KEY_W))
-                UpdateOption(ref optionTitle, -1, 1, 3);
+                UpdateOption(ref _optionTitle, -1, 1, 3);
 
             if (KeyReleased(Engine.KEY_DOWN) || KeyReleased(Engine.KEY_S))
-                UpdateOption(ref optionTitle, 1, 1, 3);
+                UpdateOption(ref _optionTitle, 1, 1, 3);
         }
 
         static void HandleContinuousShoot()
         {
             int currentTime = Environment.TickCount;
-            if (currentTime - lastShootTime >= shootCooldown)
+            if (currentTime - _lastShootTime >= _shootCooldown)
             {
-                playerShoot();
-                lastShootTime = currentTime;
+                PlayerShoot();
+                _lastShootTime = currentTime;
             }
         }
 
@@ -147,17 +220,28 @@ namespace MyGame
 
         static void SwitchState(GameState fromState, GameState toState)
         {
-            if (currentState == fromState) currentState = toState;
+            if (_currentState == fromState) _currentState = toState;
+
+            if (_currentState == fromState)
+            {
+                _currentState = toState;
+
+                if (toState == GameState.Juego)
+                {
+                    _nivelActual = CargarNivel(_nivel);
+                    _playerPosition = new Vector2(200, 200);
+                }
+            }
         }
 
         static void TogglePause()
         {
-            currentState = currentState == GameState.Juego ? GameState.Pausa : GameState.Juego;
+            _currentState = _currentState == GameState.Juego ? GameState.Pausa : GameState.Juego;
         }
 
         static void HandleMenuSelection()
         {
-            switch (currentState)
+            switch (_currentState)
             {
                 case GameState.Titulo:
                     ProcessTitleSelection();
@@ -166,20 +250,20 @@ namespace MyGame
                     ProcessEndGameSelection();
                     break;
                 case GameState.Creditos:
-                    currentState = GameState.Titulo;
+                    _currentState = GameState.Titulo;
                     break;
             }
         }
 
         static void ProcessTitleSelection()
         {
-            switch (optionTitle)
+            switch (_optionTitle)
             {
                 case 1: 
-                    currentState = GameState.Juego;
-                    playerPosition = new Vector2(200, 200);
+                    _currentState = GameState.Juego;
+                    _playerPosition = new Vector2(200, 200);
                     break;
-                case 2: currentState = GameState.Creditos; break;
+                case 2: _currentState = GameState.Creditos; break;
                 case 3: Environment.Exit(0); break;
             }
             ResetOptions();
@@ -187,32 +271,35 @@ namespace MyGame
 
         static void ProcessEndGameSelection()
         {
-            currentState = optionFinJuego == 1 ? GameState.Juego : GameState.Titulo;
+            _currentState = _optionFinJuego == 1 ? GameState.Juego : GameState.Titulo;
             ResetOptions();
         }
 
         static void ResetOptions()
         {
-            optionTitle = optionFinJuego = 1;
+            _optionTitle = _optionFinJuego = _nivel = 1;
+            _bullets.Clear();
+            _playerPosition = new Vector2(200, 200);
+            _nivelActual = CargarNivel(1);
         }
 
         static void Update()
         {
             CheckInputs();
-            if (currentState == GameState.Juego) inGame();
+            if (_currentState == GameState.Juego) InGame();
         }
 
         static void Render()
         {
             Engine.Clear();
-            Engine.Draw(backgroundImage, 0, 0);
+            Engine.Draw(_backgroundImage, 0, 0);
             DrawCurrentState();
             Engine.Show();
         }
 
         static void DrawCurrentState()
         {
-            switch (currentState)
+            switch (_currentState)
             {
                 case GameState.Titulo: DrawTitleScreen(); break;
                 case GameState.Juego: DrawGameScreen(); break;
@@ -224,20 +311,20 @@ namespace MyGame
 
         static void DrawTitleScreen()
         {
-            Engine.DrawText("Titulo Juego", 300, 200, 255, 255, 255, fontTitle);
-            DrawTextWithOptions(" ", new string[] { "Jugar", "Creditos", "Salir" }, optionTitle, 800, 600,Orientation.Vertical);
+            Engine.DrawText("Titulo Juego", 300, 200, 255, 255, 255, _fontTitle);
+            DrawTextWithOptions(" ", new string[] { "Jugar", "Creditos", "Salir" }, _optionTitle, 800, 600,Orientation.Vertical);
         }
 
         static void DrawEndGameScreen()
         {
-            Engine.DrawText("Juego Terminado", 300, 200, 255, 255, 255, fontTitle);
-            Engine.DrawText($"SCORE: 0", 450, 350, 255, 255, 255, font);
-            DrawTextWithOptions(" ", new string[] { "REINICIAR", "PANTALLA TITULO" }, optionFinJuego, 300, 650, Orientation.Horizontal);
+            Engine.DrawText("Juego Terminado", 300, 200, 255, 255, 255, _fontTitle);
+            Engine.DrawText($"SCORE: {_score}", 450, 350, 255, 255, 255, _font);
+            DrawTextWithOptions(" ", new string[] { "REINICIAR", "PANTALLA TITULO" }, _optionFinJuego, 300, 650, Orientation.Horizontal);
         }
 
         static void DrawCreditsScreen()
         {
-            Engine.DrawText("CREDITOS", 350, 100, 255, 255, 255, fontTitle);
+            Engine.DrawText("CREDITOS", 350, 100, 255, 255, 255, _fontTitle);
             string[] controls = {
                 "Controles:", "Arriba: W / Flecha Arriba", "Abajo: S / Flecha Abajo",
                 "Izquierda: A / Flecha Izquierda", "Derecha: D / Flecha Derecha",
@@ -249,75 +336,101 @@ namespace MyGame
                 "Alumno: Nicolas Madera"
             };
             DrawTextList(gameInfo, 600, 200);
-            Engine.DrawText("VOLVER", 800, 600, 255, 255, 255, font);
-            playerPosition = new Vector2(760, 610);
-            Engine.Draw(playerImageIcon, playerPosition._x, playerPosition._y);
+            Engine.DrawText("VOLVER", 800, 600, 255, 255, 255, _font);
+            _playerPosition = new Vector2(760, 610);
+            Engine.Draw(_playerImageIcon, _playerPosition._x, _playerPosition._y);
         }
 
         static void DrawPauseScreen()
         {
             DrawGameScreen();
-            Engine.DrawText("- PAUSA -", 400, 350, 255, 255, 255, fontTitle);
+            Engine.DrawText("- PAUSA -", 400, 350, 255, 255, 255, _fontTitle);
         }
 
         static void DrawGameScreen()
         {
-            Engine.Draw(layer1, 0, 0);
-            Engine.Draw(layer2_1, 0 + paralax2, 0);
-            Engine.Draw(layer2_2, 1024 + paralax2, 0);
-            Engine.Draw(layer3_1, 0 + paralax, 0);
-            Engine.Draw(layer3_2, 1024 + paralax,0);
-            foreach (bullet bullet in bullets)
+            Engine.Draw(_layer1, 0, 0);
+            Engine.Draw(_layer2_1, 0 + _paralax2, 0);
+            Engine.Draw(_layer2_2, 1024 + _paralax2, 0);
+            Engine.Draw(_layer3_1, 0 + _paralax, 0);
+            Engine.Draw(_layer3_2, 1024 + _paralax, 0);
+
+            foreach (bullet bullet in _bullets)
             {
                 Engine.Draw(bullet._bulletImage, bullet._position._x, bullet._position._y);
             }
-            Engine.Draw(playerImage, playerPosition._x, playerPosition._y);
+
+            foreach (bullet bulletEnemy in _enemyBullets)
+            {
+                Engine.Draw(bulletEnemy._bulletImage, bulletEnemy._position._x, bulletEnemy._position._y);
+            }
+
+            
+
+            if (_nivelActual != null)
+            {
+                var oleada = _nivelActual.getCurrentWave();
+                if (oleada != null)
+                {
+                    Engine.DrawText($"enemies: { oleada._enemies.Count}", 900, 50, 255, 255, 255, _font);
+                    foreach (var enemigo in oleada._enemies)
+                    {
+                        if (!enemigo._isDestroyed)
+                        {
+                            Engine.Draw(enemigo._imagen, enemigo._posicion._x, enemigo._posicion._y);
+                        }
+                    }
+                }
+            }
+            Engine.Draw(_playerImage, _playerPosition._x, _playerPosition._y);
+            Engine.DrawText($"SCORE: {_score}", 50, 50, 255, 255, 255, _font);
+
         }
 
         static void DrawTextWithOptions(string title, string[] options, int selectedOption, int startX, int startY, Orientation orientation)
         {
-            Engine.DrawText(title, startX, startY, 255, 255, 255, fontTitle);
+            Engine.DrawText(title, startX, startY, 255, 255, 255, _fontTitle);
 
             for (int i = 0; i < options.Length; i++)
             {
                 int offsetX = orientation == Orientation.Horizontal ? i * 300 : 0;
                 int offsetY = orientation == Orientation.Vertical ? i * 50 : 0;
 
-                Engine.DrawText(options[i], startX + offsetX, startY + offsetY, 255, 255, 255, font);
+                Engine.DrawText(options[i], startX + offsetX, startY + offsetY, 255, 255, 255, _font);
 
                 if (i + 1 == selectedOption)
                 {
                     int iconX = startX + offsetX -40;
                     int iconY = startY + offsetY + 10;
-                    playerPosition = new Vector2(iconX, iconY);
+                    _playerPosition = new Vector2(iconX, iconY);
                 }
             }
 
-            Engine.Draw(playerImageIcon, playerPosition._x, playerPosition._y);
+            Engine.Draw(_playerImageIcon, _playerPosition._x, _playerPosition._y);
         }
 
         static void DrawTextList(string[] texts, int startX, int startY)
         {
             for (int i = 0; i < texts.Length; i++)
             {
-                Engine.DrawText(texts[i], startX, startY + i * 50, 255, 255, 255, font);
+                Engine.DrawText(texts[i], startX, startY + i * 50, 255, 255, 255, _font);
             }
         }
 
-        public static int Clamp(int value, int min, int max)
+        static int Clamp(int value, int min, int max)
         {
             if (value < min) return min;
             if (value > max) return max;
             return value;
         }
 
-        private static void ClampPlayerPosition()
+        static void ClampPlayerPosition()
         {
-            playerPosition._x = Clamp(playerPosition._x, 0, screenWidth - imageWidth);
-            playerPosition._y = Clamp(playerPosition._y, 0, screenHeight - imageHeight);
+            _playerPosition._x = Clamp(_playerPosition._x, 0, _screenWidth - _imageWidth);
+            _playerPosition._y = Clamp(_playerPosition._y, 0, _screenHeight - _imageHeight);
         }
 
-        private static void playerMovement()
+        static void PlayerMovement()
         {
             Vector2 movement = new Vector2();
 
@@ -330,60 +443,241 @@ namespace MyGame
             if (Engine.KeyPress(Engine.KEY_DOWN) || Engine.KeyPress(Engine.KEY_S))
                 movement += Vector2.Down;
 
-            playerPosition += movement * speedMovement;
+            _playerPosition += movement * _speedMovement;
             ClampPlayerPosition();
         }
 
-        private static void playerShoot()
+        static void PlayerShoot()
         {
             int offsetY = 30;
-            bullet instanciteBullet = new bullet(bulletImage,playerPosition._x, playerPosition._y + offsetY);
-            bullets.Add(instanciteBullet);
+            bullet instanciteBullet = new bullet(_bulletImage,_playerPosition._x, _playerPosition._y + offsetY);
+            _bullets.Add(instanciteBullet);
         }
 
-        static void inGame()
+        static void InGame()
         {
-            paralaxController();
-            bulletController();
-            //enemyMovementLogic();
-            //colitionController();
-        }
-
-        private static void bulletController()
-        {
-            if (bullets.Count > 0)
+            ParalaxController();
+            BulletController();
+            if (_nivelActual != null)
             {
-                foreach (bullet bullet in bullets)
+                EnemyMovementLogic(_nivelActual); 
+            }
+            CollitionController();
+        }
+
+        static void BulletController()
+        {
+            if (_bullets.Count > 0)
+            {
+                foreach (bullet bullet in _bullets)
+                {
+                    bullet.move();
+                }
+            }
+
+            if (_enemyBullets.Count > 0)
+            {
+                foreach (bullet bullet in _enemyBullets)
                 {
                     bullet.move();
                 }
             }
         }
 
-        private static void paralaxController()
+        static void ParalaxController()
         {
-            paralax--;
-            if (paralax < -1024) paralax = 0;
-            paralax2 -= 0.5f;
-            if (paralax2 < -1024) paralax2 = 0;
+            _paralax--;
+            if (_paralax < -1024) _paralax = 0;
+            _paralax2 -= 0.5f;
+            if (_paralax2 < -1024) _paralax2 = 0;
         }
 
-        private static void enemyMovementLogic()
+        static void EnemyMovementLogic(Level nivelActual)
         {
-            
+            Wave oleada = nivelActual.getCurrentWave();
+            if (oleada != null)
+            {
+                foreach (Enemy enemigo in oleada._enemies)
+                {
+                    if(enemigo._posicion._x <= -200)
+                    {
+                        enemigo._posicion._x = 1050;
+                    }
+                    if (!enemigo._isDestroyed)
+                    {
+                        switch (enemigo._patronMovimiento)
+                        {
+                            case "zigzag":
+                                MoverEnZigzag(enemigo);
+                                break;
+                            case "lineal":
+                                MoverLineal(enemigo);
+                                break;
+                            case "mina":
+                                MoverMina(enemigo);
+                                break;
+                        }
+                    }
+                }
+
+                if (oleada.CompleteWave())
+                {
+                    bool hayMasOleadas = nivelActual.NextWave();
+                    if (hayMasOleadas)
+                    {
+                        Console.WriteLine("Pasando a la siguiente oleada...");
+                    }
+                    else
+                    { 
+                        _nivel++;
+                        _nivelActual = CargarNivel(_nivel);  
+                    }
+                }
+            }
+            else
+            {
+                _currentState = GameState.FinJuego;
+            }
         }
 
-        private static void colitionController()
+        static void MoverEnZigzag(Enemy enemigo)
         {
-            
+            float tiempo = Sdl.SDL_GetTicks() / 1000.0f; 
+            enemigo._posicion._x += Vector2.Left._x * enemigo._speed; 
+            enemigo._posicion._y += (int)(Math.Sin(tiempo * 2) * 5);
+        }
+
+        static void MoverLineal(Enemy enemigo)
+        {
+            enemigo._posicion._x += Vector2.Left._x * enemigo._speed; 
+        }
+
+        static void MoverMina(Enemy enemigo)
+        {
+            enemigo._posicion._x += Vector2.Left._x * enemigo._speed;
+            if(enemigo._posicion._x < 512)
+            {
+                DestruirEnemigo(enemigo);
+            }
+        }
+
+        static void RealizarDisparo(Enemy enemigo)
+        {
+            int bulletSpeed = 5;
+
+            List<Vector2> direcciones = new List<Vector2>
+            {
+                Vector2.Up,      
+                Vector2.Down,        
+                Vector2.Left,        
+                Vector2.Right,       
+                Vector2.UpLeft,      
+                Vector2.UpRight,     
+                Vector2.DownLeft,   
+                Vector2.DownRight   
+            };
+
+            foreach (var direccion in direcciones)
+            {
+                bullet nuevaBala = new bullet(
+                    _bulletImage,
+                    enemigo._posicion._x + 32,
+                    enemigo._posicion._y + 32
+                );
+
+                nuevaBala._direction = direccion;
+                nuevaBala._speed = bulletSpeed;
+                _enemyBullets.Add(nuevaBala);
+            }
+
+            Console.WriteLine("Enemigo disparó en 8 direcciones.");
+        }
+
+        static void CollitionController()
+        {
+            List<bullet> bulletsToRemove = new List<bullet>();
+
+            foreach (var bullet in _bullets)
+            {
+                foreach (Wave oleada in _nivelActual._waves)
+                {
+                    foreach (Enemy enemigo in oleada._enemies)
+                    {
+                        if (bullet._position._x > 1024)
+                        {
+                            bulletsToRemove.Add(bullet);
+                        }
+                        else if (!enemigo._isDestroyed && DetectCollisionBulletEnemy(bullet, enemigo))
+                        {
+                            _score += 10;
+                            DestruirEnemigo(enemigo);
+                            bulletsToRemove.Add(bullet);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            foreach (Wave oleada in _nivelActual._waves)
+            {
+                foreach (Enemy enemigo in oleada._enemies)
+                {
+                    if (!enemigo._isDestroyed && DetectCollisionPlayerEnemy(_playerPosition, enemigo._posicion))
+                    {
+                        DestruirEnemigo(enemigo);
+                        DestruirJugador();
+                        _currentState = GameState.FinJuego; 
+                        Console.WriteLine("El jugador ha sido destruido. Fin del juego.");
+                        return; 
+                    }
+                }
+            }
+
+            foreach (var bullet in bulletsToRemove)
+            {
+                _bullets.Remove(bullet);
+            }
+        }
+
+        static bool DetectCollisionPlayerEnemy(Vector2 playerPos, Vector2 enemyPos)
+        {
+            return playerPos._x < enemyPos._x + 64 &&
+                   playerPos._x + 64 > enemyPos._x &&
+                   playerPos._y < enemyPos._y + 64 &&
+                   playerPos._y + 64 > enemyPos._y;
+        }
+
+        static void DestruirJugador()
+        {
+            Console.WriteLine("Jugador destruido.");
+            _playerPosition = new Vector2(200, 200);
+        }
+
+        static bool DetectCollisionBulletEnemy(bullet bullet, Enemy enemigo)
+        {
+            return bullet._position._x < enemigo._posicion._x + 64 &&
+                   bullet._position._x + 32 > enemigo._posicion._x &&
+                   bullet._position._y < enemigo._posicion._y + 64 &&
+                   bullet._position._y + 32 > enemigo._posicion._y;
+        }
+
+        static void DestruirEnemigo(Enemy enemigo)
+        {
+            if (enemigo._patronAtaque == "explosion")
+            {
+                RealizarDisparo(enemigo);
+            }
+            enemigo._isDestroyed = true;
+            Console.WriteLine($"Enemigo {enemigo._tipo} ha sido destruido.");
         }
 
     }
 
-    class bullet
+    public class bullet
     {
         public Image _bulletImage;
         public Vector2 _position;
+        public Vector2 _direction = Vector2.Right;
         public int _speed = 7;
 
         public bullet(Image bulletImage, int intialPositionX, int intialPositionY)
@@ -394,18 +688,12 @@ namespace MyGame
 
         public void move()
         {
-            this._position += Vector2.Right * this._speed;
+            _position += _direction * _speed;
         }
-
-        public bool collition()
-        {
-            return false;
-        }
-
-
     }
-    
-    class Vector2
+
+
+    public class Vector2
     {
         public int _x { get; set; }
         public int _y { get; set; }
@@ -421,6 +709,11 @@ namespace MyGame
         public static Vector2 Up => new Vector2(0, -1);
         public static Vector2 Down => new Vector2(0, 1);
 
+        public static Vector2 UpLeft => new Vector2(-1, -1);
+        public static Vector2 UpRight => new Vector2(1, -1);
+        public static Vector2 DownLeft => new Vector2(-1, 1);
+        public static Vector2 DownRight => new Vector2(1, 1);
+
         public static Vector2 operator +(Vector2 v1, Vector2 v2)
         {
             return new Vector2(v1._x + v2._x, v1._y + v2._y);
@@ -429,6 +722,75 @@ namespace MyGame
         public static Vector2 operator *(Vector2 v, int scalar)
         {
             return new Vector2(v._x * scalar, v._y * scalar);
+        }
+    }
+
+    public class Level
+    {
+        public int _level;
+        public List<Wave> _waves;
+        public int _currentWave; 
+
+        public Level()
+        {
+            _waves = new List<Wave>();
+            _currentWave = 0;
+        }
+
+        public Wave getCurrentWave()
+        {
+            if (_waves != null && _waves.Count > _currentWave)
+            {
+                return _waves[_currentWave];
+            }
+            return null;
+        }
+
+        public bool NextWave()
+        {
+            if (_currentWave < _waves.Count - 1)
+            {
+                _currentWave++;
+                return true;
+            }
+            return false; 
+        }
+    }
+
+    public class Wave
+    {
+        public List<Enemy> _enemies;
+
+        public Wave()
+        {
+            _enemies = new List<Enemy>();
+        }
+
+        public bool CompleteWave()
+        {
+            return _enemies.TrueForAll(e => e._isDestroyed);
+        }
+    }
+
+    public class Enemy
+    {
+        public string _tipo;
+        public Image _imagen;
+        public Vector2 _posicion; 
+        public string _patronMovimiento;
+        public string _patronAtaque;
+        public bool _isDestroyed;
+        public int _speed;
+
+        public Enemy(Image image, string tipo, Vector2 posicion, int speed, string movimiento, string ataque)
+        {
+            _tipo = tipo;
+            _imagen = image;
+           _posicion = posicion;
+            _speed = speed;
+            _patronMovimiento = movimiento;
+            _patronAtaque = ataque;
+            _isDestroyed = false;
         }
     }
 
