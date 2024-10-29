@@ -83,3 +83,7 @@ C:\UTN_Programacion1_2024\bin\Debug\assets\layer_1.png
 C:\UTN_Programacion1_2024\bin\Debug\assets\layer_2.png
 C:\UTN_Programacion1_2024\bin\Debug\assets\layer_3.png
 C:\UTN_Programacion1_2024\bin\Debug\assets\bullet.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_bullet.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_lineal.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_mina.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_zigzag.png

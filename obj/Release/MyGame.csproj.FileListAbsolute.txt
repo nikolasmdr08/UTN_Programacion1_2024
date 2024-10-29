@@ -1,0 +1,17 @@
+C:\UTN_Programacion1_2024\bin\Release\assets\bullet.png
+C:\UTN_Programacion1_2024\bin\Release\assets\fondo.png
+C:\UTN_Programacion1_2024\bin\Release\assets\layer_1.png
+C:\UTN_Programacion1_2024\bin\Release\assets\layer_2.png
+C:\UTN_Programacion1_2024\bin\Release\assets\layer_3.png
+C:\UTN_Programacion1_2024\bin\Release\assets\playerIcon.png
+C:\UTN_Programacion1_2024\bin\Release\assets\playerImage.png
+C:\UTN_Programacion1_2024\bin\Release\assets\Arial.ttf
+C:\UTN_Programacion1_2024\bin\Release\MyGame.exe.config
+C:\UTN_Programacion1_2024\bin\Release\MyGame.exe
+C:\UTN_Programacion1_2024\bin\Release\MyGame.pdb
+C:\UTN_Programacion1_2024\bin\Release\Tao.Sdl.dll
+C:\UTN_Programacion1_2024\obj\Release\MyGame.csproj.AssemblyReference.cache
+C:\UTN_Programacion1_2024\obj\Release\MyGame.csproj.CoreCompileInputs.cache
+C:\UTN_Programacion1_2024\obj\Release\MyGame.csproj.Up2Date
+C:\UTN_Programacion1_2024\obj\Release\MyGame.exe
+C:\UTN_Programacion1_2024\obj\Release\MyGame.pdb

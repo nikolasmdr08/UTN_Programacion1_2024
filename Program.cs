@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Media;
-using System.Security.AccessControl;
 using Tao.Sdl;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace MyGame
 {
@@ -20,7 +16,8 @@ namespace MyGame
 
         // Fuentes y Recursos
         static Font _font, _fontTitle;
-        static Image _backgroundImage, _playerImageIcon, _playerImage, _layer1, _layer2_1, _layer2_2, _layer3_1, _layer3_2, _bulletImage, _enemyImage;
+        static Image _backgroundImage, _playerImageIcon, _playerImage, _layer1, _layer2_1, _layer2_2, _layer3_1, _layer3_2, _bulletImage, _enemyLinealImage
+            , _enemyZigzagImage, _enemyMinaImage, _bulletEnemyImage;
         static Vector2 _playerPosition = new Vector2();
 
         //variables
@@ -49,9 +46,12 @@ namespace MyGame
             _layer3_1 = Engine.LoadImage("assets/layer_3.png");
             _layer3_2 = Engine.LoadImage("assets/layer_3.png");
             _bulletImage = Engine.LoadImage("assets/bullet.png");
+            _bulletEnemyImage = Engine.LoadImage("assets/enemy_bullet.png");
             _playerImageIcon = Engine.LoadImage("assets/playerIcon.png");
             _playerImage = Engine.LoadImage("assets/playerImage.png");
-            _enemyImage = Engine.LoadImage("assets/playerImage.png");
+            _enemyLinealImage = Engine.LoadImage("assets/enemy_lineal.png");
+            _enemyZigzagImage = Engine.LoadImage("assets/enemy_zigzag.png");
+            _enemyMinaImage = Engine.LoadImage("assets/enemy_mina.png");
             _nivel = 1;
             _score = 0;
             _nivelActual = CargarNivel(_nivel);
@@ -118,35 +118,49 @@ namespace MyGame
         {
             int offset = 100;
             int posicionInicialX = 1050;
-            int enemySpeed = 5;
+            int enemySpeed = 5 * level;
 
             Level nivel = new Level();
             switch (level)
             {
                 case 1:
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 1, "mina", posicionInicialX, 200, offset, 30,"explosion"));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 500, offset, enemySpeed, ""));
-                    /*nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "lineal", posicionInicialX, 300, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "lineal", posicionInicialX, 100, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 400, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "lineal", posicionInicialX, 600, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 350, offset, enemySpeed, ""));*/
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 1, "lineal", posicionInicialX, 200, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 500, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 10, "lineal", posicionInicialX, 300, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 10, "lineal", posicionInicialX, 100, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 400, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 10, "lineal", posicionInicialX, 600, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 350, offset, enemySpeed, ""));
                     break;
                 case 2:
-                    /*nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 200, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 500, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 300, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 100, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 400, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 600, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 350, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 200, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 500, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 300, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 100, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 400, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 10, "zigzag", posicionInicialX, 600, offset, enemySpeed, ""));
-                    nivel._waves.Add(GenerarOleada(_enemyImage, "comun", 5, "lineal", posicionInicialX, 350, offset, enemySpeed, ""));*/
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 200, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 500, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyZigzagImage, "comun", 10, "zigzag", posicionInicialX, 300, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyZigzagImage, "comun", 10, "zigzag", posicionInicialX, 100, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 400, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyZigzagImage, "comun", 10, "zigzag", posicionInicialX, 600, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 350, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 200, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 500, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyZigzagImage, "comun", 10, "zigzag", posicionInicialX, 300, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyZigzagImage, "comun", 10, "zigzag", posicionInicialX, 100, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 400, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyZigzagImage, "comun", 10, "zigzag", posicionInicialX, 600, offset, enemySpeed, ""));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 350, offset, enemySpeed, ""));
+                    break;
+                case 3:
+                    nivel._waves.Add(GenerarOleada(_enemyMinaImage, "comun", 1, "mina", posicionInicialX, 200, offset, 30, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 200, offset, 30, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyMinaImage, "comun", 1, "mina", posicionInicialX, 200, offset, 30, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyZigzagImage, "comun", 5, "zigzag", posicionInicialX, 100, offset, enemySpeed, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyMinaImage, "comun", 1, "mina", posicionInicialX, 200, offset, 30, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 200, offset, 30, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyMinaImage, "comun", 1, "mina", posicionInicialX, 200, offset, 30, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyZigzagImage, "comun", 5, "zigzag", posicionInicialX, 100, offset, enemySpeed, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyMinaImage, "comun", 1, "mina", posicionInicialX, 200, offset, 30, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyLinealImage, "comun", 5, "lineal", posicionInicialX, 200, offset, 30, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyMinaImage, "comun", 1, "mina", posicionInicialX, 200, offset, 30, "explosion"));
+                    nivel._waves.Add(GenerarOleada(_enemyZigzagImage, "comun", 5, "zigzag", posicionInicialX, 100, offset, enemySpeed, "explosion"));
                     break;
                 default:
                     _currentState = GameState.FinJuego;
@@ -279,6 +293,7 @@ namespace MyGame
         {
             _optionTitle = _optionFinJuego = _nivel = 1;
             _bullets.Clear();
+            _enemyBullets.Clear();
             _playerPosition = new Vector2(200, 200);
             _nivelActual = CargarNivel(1);
         }
@@ -362,7 +377,7 @@ namespace MyGame
 
             foreach (bullet bulletEnemy in _enemyBullets)
             {
-                Engine.Draw(bulletEnemy._bulletImage, bulletEnemy._position._x, bulletEnemy._position._y);
+                Engine.Draw(bulletEnemy._bulletImage , bulletEnemy._position._x, bulletEnemy._position._y);
             }
 
             
@@ -563,7 +578,7 @@ namespace MyGame
 
         static void RealizarDisparo(Enemy enemigo)
         {
-            int bulletSpeed = 5;
+            int bulletSpeed = 2;
 
             List<Vector2> direcciones = new List<Vector2>
             {
@@ -580,7 +595,7 @@ namespace MyGame
             foreach (var direccion in direcciones)
             {
                 bullet nuevaBala = new bullet(
-                    _bulletImage,
+                    _bulletEnemyImage,
                     enemigo._posicion._x + 32,
                     enemigo._posicion._y + 32
                 );
@@ -633,10 +648,29 @@ namespace MyGame
                 }
             }
 
+            foreach (bullet bullet in _enemyBullets)
+            {
+                if (bullet._position._x < 0 || bullet._position._x > 1024 ||
+                    bullet._position._y < 0 || bullet._position._y > 768)
+                {
+                    bulletsToRemove.Add(bullet);
+                }
+
+                else if (DetectCollisionBulletEnemyPlayer(bullet, _playerPosition))
+                {
+                    Console.WriteLine("Jugador impactado por bala enemiga. Fin del juego.");
+                    DestruirJugador();
+                    bulletsToRemove.Add(bullet);
+                    _currentState = GameState.FinJuego;
+                    return;
+                }
+            }
+
             foreach (var bullet in bulletsToRemove)
             {
                 _bullets.Remove(bullet);
             }
+
         }
 
         static bool DetectCollisionPlayerEnemy(Vector2 playerPos, Vector2 enemyPos)
@@ -669,6 +703,14 @@ namespace MyGame
             }
             enemigo._isDestroyed = true;
             Console.WriteLine($"Enemigo {enemigo._tipo} ha sido destruido.");
+        }
+
+        static bool DetectCollisionBulletEnemyPlayer(bullet bullet, Vector2 playerPos)
+        {
+            return bullet._position._x < playerPos._x + 64 &&
+                   bullet._position._x + 6 > playerPos._x &&
+                   bullet._position._y < playerPos._y + 64 &&
+                   bullet._position._y + 6 > playerPos._y;
         }
 
     }
