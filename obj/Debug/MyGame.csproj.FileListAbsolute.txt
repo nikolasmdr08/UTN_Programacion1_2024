@@ -57,7 +57,6 @@ C:\Users\darkz\Downloads\Proyecto Base\obj\Debug\MyGame.pdb
 C:\Users\darkz\Downloads\Proyecto Base\bin\Debug\assets\Arial.ttf
 C:\Users\darkz\Downloads\Proyecto Base\bin\Debug\assets\player.png
 C:\UTN_Programacion1_2024\bin\Debug\assets\fondo.png
-C:\UTN_Programacion1_2024\bin\Debug\assets\player.png
 C:\UTN_Programacion1_2024\bin\Debug\assets\Arial.ttf
 C:\UTN_Programacion1_2024\bin\Debug\MyGame.exe.config
 C:\UTN_Programacion1_2024\bin\Debug\MyGame.exe
@@ -78,3 +77,13 @@ C:\Git\UTN_Programacion1_2024\obj\Debug\MyGame.csproj.CoreCompileInputs.cache
 C:\Git\UTN_Programacion1_2024\obj\Debug\MyGame.csproj.Up2Date
 C:\Git\UTN_Programacion1_2024\obj\Debug\MyGame.exe
 C:\Git\UTN_Programacion1_2024\obj\Debug\MyGame.pdb
+C:\UTN_Programacion1_2024\bin\Debug\assets\playerIcon.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\playerImage.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\layer_1.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\layer_2.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\layer_3.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\bullet.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_bullet.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_lineal.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_mina.png
+C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_zigzag.png
