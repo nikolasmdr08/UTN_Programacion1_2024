@@ -87,3 +87,12 @@ C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_bullet.png
 C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_lineal.png
 C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_mina.png
 C:\UTN_Programacion1_2024\bin\Debug\assets\enemy_zigzag.png
+C:\UTN_Programacion1_2024\bin\Debug\MyGame.exe.manifest
+C:\UTN_Programacion1_2024\bin\Debug\MyGame.application
+C:\UTN_Programacion1_2024\obj\Debug\MyGame.exe.manifest
+C:\UTN_Programacion1_2024\obj\Debug\MyGame.application
+C:\UTN_Programacion1_2024\bin\Debug\assets\348164__djfroyd__laser-one-shot-1.wav
+C:\UTN_Programacion1_2024\bin\Debug\assets\394128__morganpurkis__space-explosion.wav
+C:\UTN_Programacion1_2024\bin\Debug\assets\495389__romariogrande__space-steps.wav
+C:\UTN_Programacion1_2024\bin\Debug\assets\560578__theplax__explosion-6.wav
+C:\UTN_Programacion1_2024\bin\Debug\assets\671327__sergequadrado__space-expedition.wav
