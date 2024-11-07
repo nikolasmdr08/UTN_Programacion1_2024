@@ -15,3 +15,7 @@ C:\UTN_Programacion1_2024\obj\Release\MyGame.csproj.CoreCompileInputs.cache
 C:\UTN_Programacion1_2024\obj\Release\MyGame.csproj.Up2Date
 C:\UTN_Programacion1_2024\obj\Release\MyGame.exe
 C:\UTN_Programacion1_2024\obj\Release\MyGame.pdb
+C:\UTN_Programacion1_2024\bin\Release\assets\enemy_bullet.png
+C:\UTN_Programacion1_2024\bin\Release\assets\enemy_lineal.png
+C:\UTN_Programacion1_2024\bin\Release\assets\enemy_mina.png
+C:\UTN_Programacion1_2024\bin\Release\assets\enemy_zigzag.png
